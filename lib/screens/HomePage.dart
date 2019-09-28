@@ -163,13 +163,12 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(color: Colors.white, fontSize: 14.0),
                     ),
                     InkWell(
-                      onTap: (){},
+                        onTap: () {},
                         child: Icon(
-                      Icons.shopping_cart,
-                      color: Colors.white,
-                      size: 16.0,
-                    )),
-//                  IconButton(icon: Icon(Icons.shopping_cart, color: Colors.white,size: 10.0,),padding: EdgeInsets.all(0), onPressed: (){})
+                          Icons.shopping_cart,
+                          color: Colors.white,
+                          size: 16.0,
+                        )),
                   ],
                 ))
           ],
@@ -190,14 +189,7 @@ class _HomePageState extends State<HomePage> {
           itemBuilder: (context, index) {
             print('item: ${drinkList[index].toString()}');
             return buildListItem(index);
-          }
-//    child: ListView(
-//      scrollDirection: Axis.horizontal,
-//      children: <Widget>[
-//        for(int i=0;i<drinkList.length;i++) buildListItem(i),
-//      ],
-//    ),
-          ),
+          }),
     );
   }
 }
