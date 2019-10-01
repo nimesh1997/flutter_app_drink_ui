@@ -29,7 +29,10 @@ class Drink {
     Drink(
         price: '\$1999',
         title: 'Heavensake',
-        subTitle: 'Junmal Ginjo', imgPath: 'assets/images/heavensake.png', color: Color(0xFFB4E8EB), rating: 4),
+        subTitle: 'Junmal Ginjo',
+        imgPath: 'assets/images/heavensake.png',
+        color: Color(0xFFB4E8EB),
+        rating: 4),
     Drink(
         price: '\$1299',
         title: 'Mavrose Rose Wine',
