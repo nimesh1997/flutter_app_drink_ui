@@ -19,20 +19,39 @@ class _HomePageState extends State<HomePage> {
     return Container(
       height: double.infinity,
       width: double.infinity,
-      child: Stack(
-        children: <Widget>[
-          buildBody(),
-          buildAppBar(),
-          Container(
-            padding: EdgeInsets.only(left: 12.0, top: 50.0),
-            child: Column(
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Stack(
               children: <Widget>[
-                buildTile(),
-                buildList(),
+                buildBody(),
+                buildAppBar(),
+                Container(
+                  padding: EdgeInsets.only(left: 12.0, top: 50.0),
+                  child: Column(
+                    children: <Widget>[
+                      buildTile('List'),
+                      buildList(drinkList),
+                    ],
+                  ),
+                )
               ],
             ),
-          )
-        ],
+            Stack(
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.only(left: 12.0, top: 10.0),
+                  child: Column(
+                    children: <Widget>[
+                      buildTile('Recommend'),
+                      buildList(recommendedDrinkList),
+                    ],
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -112,12 +131,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// It is a static heading name 'List'
-  Widget buildTile() {
+  Widget buildTile(String titleName) {
     return Container(
       child: Row(
         children: <Widget>[
           Text(
-            'List',
+            titleName,
             style: TextStyle(color: Colors.black, fontSize: 24.0, fontWeight: FontWeight.w800),
           )
         ],
@@ -125,7 +144,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  buildList() {
+  buildList(List<dynamic> items) {
     return Container(
       margin: EdgeInsets.only(right: 10.0),
       height: 280.0,
@@ -133,16 +152,16 @@ class _HomePageState extends State<HomePage> {
 //      alignment: Alignment.bottomCenter,
       child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: drinkList.length,
+          itemCount: items.length,
           itemBuilder: (context, index) {
-            print('item: ${drinkList[index].toString()}');
-            return buildListItem(index);
+            print('item: ${items[index].toString()}');
+            return buildListItem(index, items);
           }),
     );
   }
 
   ///this method creates the list of drink items
-  Widget buildListItem(int index) {
+  Widget buildListItem(int index, List<dynamic> items) {
     return Padding(
       padding: EdgeInsets.only(top: 12.0, bottom: 10.0, left: 10.0, right: 10.0),
       child: Container(
@@ -162,8 +181,7 @@ class _HomePageState extends State<HomePage> {
                   height: 160.0,
                   width: 200.0,
                   decoration: BoxDecoration(
-                      color: drinkList[index].color,
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
+                      color: items[index].color, borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(14.0),
@@ -172,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                     width: 200.0,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
-                        image: DecorationImage(image: AssetImage(drinkList[index].imgPath))),
+                        image: DecorationImage(image: AssetImage(items[index].imgPath))),
                   ),
                 ),
                 Padding(
@@ -181,7 +199,7 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(
-                          drinkList[index].price,
+                          items[index].price,
                           style: TextStyle(color: Colors.white, fontSize: 14.0),
                         ),
                         InkWell(
@@ -198,7 +216,7 @@ class _HomePageState extends State<HomePage> {
             Padding(
               padding: EdgeInsets.only(left: 10.0, top: 10.0),
               child: Text(
-                drinkList[index].title,
+                items[index].title,
                 style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300, color: Colors.black),
               ),
             ),
@@ -208,19 +226,19 @@ class _HomePageState extends State<HomePage> {
             Padding(
               padding: EdgeInsets.only(left: 10.0),
               child: Text(
-                drinkList[index].subTitle,
+                items[index].subTitle,
                 style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w300, color: Colors.grey),
               ),
             ),
             Row(
               children: <Widget>[
                 Row(
-                  children: getStarRating(drinkList[index].rating),
+                  children: getStarRating(items[index].rating),
                 ),
                 Padding(
                   padding: EdgeInsets.only(left: 8.0),
                   child: Text(
-                    (drinkList[index].rating / 1.0).toString(),
+                    (items[index].rating / 1.0).toString(),
                     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: Color(0xFFB4E8EB)),
                   ),
                 )
