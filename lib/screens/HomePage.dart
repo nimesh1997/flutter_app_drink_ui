@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// It is a static heading name 'List'
+
   Widget buildTile(String titleName) {
     return Container(
       child: Row(
@@ -145,6 +145,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  ///this method create the list which contains the drink items
   buildList(List<dynamic> items) {
     return Container(
       margin: EdgeInsets.only(right: 10.0),
@@ -161,21 +162,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  ///this method creates the list of drink items
+  ///this method creates the each drink items
   Widget buildListItem(int index, List<dynamic> items) {
     return Padding(
       padding: EdgeInsets.only(top: 12.0, bottom: 10.0, left: 10.0, right: 10.0),
       child: InkWell(
-        onTap: (){
+        onTap: () {
           ///Todo new detail screen open on tap of particular list item
           ///for hero transition using material page route
-          Navigator.push(context, MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (_){
-              return DrinkDetailsPage(drink: items[index]);
-            }
-          ));
-
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (_) {
+                    return DrinkDetailsPage(drink: items[index], index: index,);
+                  }));
         },
         child: Container(
           width: 200.0,
