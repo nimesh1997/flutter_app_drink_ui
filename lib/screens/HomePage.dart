@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_drink_ui/model/Drink.dart';
+import 'package:flutter_app_drink_ui/screens/DrinkDetailsPage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class HomePage extends StatefulWidget {
@@ -164,87 +165,103 @@ class _HomePageState extends State<HomePage> {
   Widget buildListItem(int index, List<dynamic> items) {
     return Padding(
       padding: EdgeInsets.only(top: 12.0, bottom: 10.0, left: 10.0, right: 10.0),
-      child: Container(
-        width: 200.0,
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-            boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 4.0, spreadRadius: 5.0)]),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Stack(
-              children: <Widget>[
-                Container(
-                  height: 160.0,
-                  width: 200.0,
-                  decoration: BoxDecoration(
-                      color: items[index].color, borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: Container(
-                    height: 120.0,
+      child: InkWell(
+        onTap: (){
+          ///Todo new detail screen open on tap of particular list item
+          ///for hero transition using material page route
+          Navigator.push(context, MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (_){
+              return DrinkDetailsPage(drink: items[index]);
+            }
+          ));
+
+        },
+        child: Container(
+          width: 200.0,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(
+                Radius.circular(10.0),
+              ),
+              boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 4.0, spreadRadius: 5.0)]),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Stack(
+                children: <Widget>[
+                  Container(
+                    height: 160.0,
                     width: 200.0,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
-                        image: DecorationImage(image: AssetImage(items[index].imgPath))),
+                        color: items[index].color, borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
                   ),
-                ),
-                Padding(
-                    padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 6.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          items[index].price,
-                          style: TextStyle(color: Colors.white, fontSize: 14.0),
-                        ),
-                        InkWell(
-                            onTap: () {},
-                            child: Icon(
-                              Icons.shopping_cart,
-                              color: Colors.white,
-                              size: 16.0,
-                            )),
-                      ],
-                    )),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 10.0, top: 10.0),
-              child: Text(
-                items[index].title,
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300, color: Colors.black),
-              ),
-            ),
-            SizedBox(
-              height: 5.0,
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 10.0),
-              child: Text(
-                items[index].subTitle,
-                style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w300, color: Colors.grey),
-              ),
-            ),
-            Row(
-              children: <Widget>[
-                Row(
-                  children: getStarRating(items[index].rating),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    (items[index].rating / 1.0).toString(),
-                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: Color(0xFFB4E8EB)),
+                  Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: Hero(
+                      tag: items[index].imgPath + index.toString(),
+                      child: Container(
+                        height: 120.0,
+                        width: 200.0,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
+                            image: DecorationImage(image: AssetImage(items[index].imgPath))),
+                      ),
+                    ),
                   ),
-                )
-              ],
-            ),
-          ],
+                  Padding(
+                      padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 6.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            items[index].price,
+                            style: TextStyle(color: Colors.white, fontSize: 14.0),
+                          ),
+                          InkWell(
+                              onTap: () {},
+                              child: Icon(
+                                Icons.shopping_cart,
+                                color: Colors.white,
+                                size: 16.0,
+                              )),
+                        ],
+                      )),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 10.0, top: 10.0),
+                child: Text(
+                  items[index].title,
+                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300, color: Colors.black),
+                ),
+              ),
+              SizedBox(
+                height: 5.0,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 10.0),
+                child: Text(
+                  items[index].subTitle,
+                  style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w300, color: Colors.grey),
+                ),
+              ),
+              Row(
+                children: <Widget>[
+                  Row(
+                    children: getStarRating(items[index].rating),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      (items[index].rating / 1.0).toString(),
+                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: Color(0xFFB4E8EB)),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
