@@ -64,13 +64,12 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
         alignment: Alignment.center,
         height: 350.0,
         decoration: BoxDecoration(color: widget.drink.color, borderRadius: BorderRadius.only(bottomLeft: Radius.circular(50.0))),
-        child: Transform.rotate(
-          angle: math.pi /4,
+        child: RotationTransition(
+          turns: AlwaysStoppedAnimation(15 / 360),
           child: Container(
-            width: 150.0,
+            width: 200.0,
             height: 200.0,
             decoration: BoxDecoration(image: DecorationImage(image: AssetImage(widget.drink.imgPath))),
-//            child: Image.asset(widget.drink.imgPath)
           ),
         ),
       ),

@@ -173,7 +173,7 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  fullscreenDialog: true,
+//                  fullscreenDialog: true,
                   builder: (_) {
                     return DrinkDetailsPage(drink: items[index], index: index,);
                   }));
