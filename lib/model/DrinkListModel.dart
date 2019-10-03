@@ -8,7 +8,9 @@ part 'DrinkListModel.g.dart';
 class DrinkListModel {
 
   @JsonKey(name: 'normalList')
-  List<DrinkData> normalList
+  List<DrinkData> normalList;
+  @JsonKey(name: 'recommendList')
+  List<DrinkData> recommendList;
 
   factory DrinkListModel.fromJson(Map<String, dynamic> json) => _$DrinkListModelFromJson(json);
 
