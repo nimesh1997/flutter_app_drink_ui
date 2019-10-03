@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_app_drink_ui/model/Drink.dart';
 import 'package:flutter_app_drink_ui/screens/DrinkDetailsPage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,6 +14,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  DatabaseReference databaseReference;
+
+  @override
+  void initState() {
+    print('initState Called');
+    getDataFromFirebase();
+    super.initState();
+  }
+  
+  
+  
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
@@ -286,5 +299,20 @@ class _HomePageState extends State<HomePage> {
       }
     }
     return wid;
+  }
+
+  void getDataFromFirebase() async{
+    print('getDataFromFirebase Called');
+    databaseReference = FirebaseDatabase.instance.reference().child('drinks').child('drinkList');
+    await databaseReference.once().then((DataSnapshot snapShot){
+      var keyName = snapShot.value.keys;
+      var dataObject = snapShot.value;
+
+      print('normalListData: ' + snapShot.value['normalList'].toString());
+
+      print('keyName: ${keyName}');
+      print('dataObject: ${dataObject}');
+
+    });
   }
 }
