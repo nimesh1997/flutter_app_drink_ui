@@ -1,9 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app_drink_ui/model/Drink.dart';
+import 'package:flutter_app_drink_ui/model/DrinkListModel.dart';
 import 'package:flutter_app_drink_ui/screens/DrinkDetailsPage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -13,8 +14,10 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+List<DrinkData> drinkDataList = [];
+List<DrinkData> recommendDrinkDataList = [];
 
+class _HomePageState extends State<HomePage> {
   DatabaseReference databaseReference;
 
   @override
@@ -23,9 +26,7 @@ class _HomePageState extends State<HomePage> {
     getDataFromFirebase();
     super.initState();
   }
-  
-  
-  
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
@@ -45,7 +46,8 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: <Widget>[
                       buildTile('List'),
-                      buildList(drinkList),
+//                      buildList(drinkList),
+                      buildList(drinkDataList),
                     ],
                   ),
                 )
@@ -58,7 +60,8 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: <Widget>[
                       buildTile('Recommend'),
-                      buildList(recommendedDrinkList),
+//                      buildList(recommendedDrinkList),
+                      buildList(recommendDrinkDataList),
                     ],
                   ),
                 )
@@ -144,7 +147,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   Widget buildTile(String titleName) {
     return Container(
       child: Row(
@@ -183,13 +185,14 @@ class _HomePageState extends State<HomePage> {
         onTap: () {
           ///Todo new detail screen open on tap of particular list item
           ///for hero transition using material page route
-          Navigator.push(
-              context,
-              MaterialPageRoute(
+          Navigator.push(context, MaterialPageRoute(
 //                  fullscreenDialog: true,
-                  builder: (_) {
-                    return DrinkDetailsPage(drink: items[index], index: index,);
-                  }));
+              builder: (_) {
+            return DrinkDetailsPage(
+              drink: items[index],
+              index: index,
+            );
+          }));
         },
         child: Container(
           width: 200.0,
@@ -208,7 +211,9 @@ class _HomePageState extends State<HomePage> {
                     height: 160.0,
                     width: 200.0,
                     decoration: BoxDecoration(
-                        color: items[index].color, borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
+//                        color: items[index].color,
+                        color: Colors.red,
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(14.0),
@@ -301,18 +306,60 @@ class _HomePageState extends State<HomePage> {
     return wid;
   }
 
-  void getDataFromFirebase() async{
+  /// this method fetch data from Firebase
+  void getDataFromFirebase() async {
     print('getDataFromFirebase Called');
-    databaseReference = FirebaseDatabase.instance.reference().child('drinks').child('drinkList');
-    await databaseReference.once().then((DataSnapshot snapShot){
-      var keyName = snapShot.value.keys;
-      var dataObject = snapShot.value;
+    Future<void> future1 = FirebaseDatabase.instance
+        .reference()
+        .child('drinks')
+        .child('drinkList')
+        .child('normalList')
+        .orderByKey()
+        .once()
+        .then((DataSnapshot datasnapshot) {
+      if (datasnapshot != null) {
+        var data = datasnapshot.value as Map;
+        data.forEach((key, value) {
+          print('Key is:' + key);
+          print('value is:' + value.toString());
+          drinkDataList.add(DrinkData.fromJson(value as Map));
+        });
+      } else {
+        print('dataSnapShot is null');
+      }
+    }).catchError((onError) {
+      print('catchError: ' + onError.toString());
+    });
 
-      print('normalListData: ' + snapShot.value['normalList'].toString());
+    Future<void> future2 = FirebaseDatabase.instance
+        .reference()
+        .child('drinks')
+        .child('drinkList')
+        .child('recommendList')
+        .orderByKey()
+        .once()
+        .then((DataSnapshot datasnapshot) {
+      if (datasnapshot != null) {
+        var data = datasnapshot.value as Map;
+        data.forEach((key, value) {
+          print('Key is:' + key);
+          print('value is:' + value.toString());
+          recommendDrinkDataList.add(DrinkData.fromJson(value as Map));
+        });
+      } else {
+        print('dataSnapShot is null');
+      }
+    }).catchError((onError) {
+      print('catchError: ' + onError.toString());
+    });
 
-      print('keyName: ${keyName}');
-      print('dataObject: ${dataObject}');
-
+    Future.wait([future1, future2]).then((onValue) {
+      print('data fetch successfully');
+//      setState(() {
+//
+//      });
+    }).catchError((onError) {
+      print('catchError Called...' + onError.toString());
     });
   }
 }
