@@ -21,10 +21,11 @@ List<DrinkData> recommendDrinkDataList = [];
 class _HomePageState extends State<HomePage> {
   DatabaseReference databaseReference;
 
+  bool isFetchDataAvailable = false;
+
   @override
   void initState() {
     print('initState Called');
-    getDataFromFirebase();
     super.initState();
   }
 
@@ -32,46 +33,58 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
 
-    return Container(
-      height: double.infinity,
-      width: double.infinity,
-      child: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Stack(
-              children: <Widget>[
-                buildBody(),
-                buildAppBar(),
-                Container(
-                  padding: EdgeInsets.only(left: 12.0, top: 50.0),
-                  child: Column(
-                    children: <Widget>[
-                      buildTile('List'),
-//                      buildList(drinkList),
-                      buildList(drinkDataList),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            Stack(
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(left: 12.0, top: 10.0),
-                  child: Column(
-                    children: <Widget>[
-                      buildTile('Recommend'),
-//                      buildList(recommendedDrinkList),
-                      buildList(recommendDrinkDataList),
-                    ],
-                  ),
-                )
-              ],
-            )
-          ],
+    if(!isFetchDataAvailable){
+      getDataFromFirebase();
+      return Center(
+        child: Container(
+          width: 20.0,
+          height: 20.0,
+          child: CircularProgressIndicator(),
         ),
-      ),
-    );
+      );
+    }else{
+
+      return Container(
+        height: double.infinity,
+        width: double.infinity,
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Stack(
+                children: <Widget>[
+                  buildBody(),
+                  buildAppBar(),
+                  Container(
+                    padding: EdgeInsets.only(left: 12.0, top: 50.0),
+                    child: Column(
+                      children: <Widget>[
+                        buildTile('List'),
+//                      buildList(drinkList),
+                        buildList(drinkDataList),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Stack(
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.only(left: 12.0, top: 10.0),
+                    child: Column(
+                      children: <Widget>[
+                        buildTile('Recommend'),
+//                      buildList(recommendedDrinkList),
+                        buildList(recommendDrinkDataList),
+                      ],
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   Widget buildAppBar() {
@@ -266,19 +279,22 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w300, color: Colors.grey),
                 ),
               ),
-              Row(
-                children: <Widget>[
-                  Row(
-                    children: getStarRating(items[index].rating),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      (items[index].rating / 1.0).toString(),
-                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: Color(0xFFB4E8EB)),
+              Padding(
+                padding: EdgeInsets.only(left: 10.0),
+                child: Row(
+                  children: <Widget>[
+                    Row(
+                      children: getStarRating(items[index].rating),
                     ),
-                  )
-                ],
+                    Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        (items[index].rating / 1.0).toString(),
+                        style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: Color(0xFFB4E8EB)),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ],
           ),
@@ -356,9 +372,9 @@ class _HomePageState extends State<HomePage> {
 
     Future.wait([future1, future2]).then((onValue) {
       print('data fetch successfully');
-//      setState(() {
-//
-//      });
+      setState(() {
+        isFetchDataAvailable = true;
+      });
     }).catchError((onError) {
       print('catchError Called...' + onError.toString());
     });
