@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -211,8 +212,7 @@ class _HomePageState extends State<HomePage> {
                     height: 160.0,
                     width: 200.0,
                     decoration: BoxDecoration(
-//                        color: items[index].color,
-                        color: Colors.red,
+                        color: Color(int.parse(items[index].color)),
                         borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0))),
                   ),
                   Padding(
@@ -224,9 +224,10 @@ class _HomePageState extends State<HomePage> {
                         width: 200.0,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
-                            image: DecorationImage(image: AssetImage(items[index].imgPath))),
+                            image: DecorationImage(image: NetworkImage(items[index].imgPath))),
                       ),
                     ),
+//                    ),
                   ),
                   Padding(
                       padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 6.0),
