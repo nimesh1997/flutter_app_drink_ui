@@ -6,29 +6,31 @@ import 'package:json_annotation/json_annotation.dart';
 part 'DrinkListModel.g.dart';
 
 class DrinkListModel {
+  DrinkListModel(this.normalList, this.recommendList);
 
   @JsonKey(name: 'normalList')
   List<DrinkData> normalList;
+
   @JsonKey(name: 'recommendList')
   List<DrinkData> recommendList;
 
   factory DrinkListModel.fromJson(Map<String, dynamic> json) => _$DrinkListModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$DrinkListModelToJson(this);
-
 }
 
 @JsonSerializable()
 class DrinkData {
+  DrinkData(this.price, this.title, this.subTitle, this.imgPath, this.color, this.rating, this.drinkQuantity);
+
   String price;
   String title;
   String subTitle;
   String imgPath;
   String color;
   int rating;
-  String drinkQuantity;
 
-  DrinkData(this.price, this.title, this.subTitle, this.imgPath, this.color, this.rating, this.drinkQuantity);
+  String drinkQuantity;
 
   /// A necessary factory constructor for creating a new User instance
   /// from a map. Pass the map to the generated `_$UserFromJson()` constructor.
