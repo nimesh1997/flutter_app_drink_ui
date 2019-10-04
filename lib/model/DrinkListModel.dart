@@ -14,7 +14,7 @@ class DrinkListModel {
 
   factory DrinkListModel.fromJson(Map<String, dynamic> json) => _$DrinkListModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$DrinkListModelToJson(this)
+  Map<String, dynamic> toJson() => _$DrinkListModelToJson(this);
 
 }
 
