@@ -199,6 +199,11 @@ class _HomePageState extends State<HomePage> {
         onTap: () {
           ///Todo new detail screen open on tap of particular list item
           ///for hero transition using material page route
+
+          print('HomePage: ' + items[index].title);
+          print('HomePage index: ' + index.toString());
+          print('tag:' + items[index].imgPath + index.toString());
+
           Navigator.push(context, MaterialPageRoute(
 //                  fullscreenDialog: true,
               builder: (_) {

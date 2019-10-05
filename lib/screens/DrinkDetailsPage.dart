@@ -1,13 +1,16 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_drink_ui/model/Drink.dart';
+import 'package:flutter_app_drink_ui/model/DrinkListModel.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:math' as math;
 
 class DrinkDetailsPage extends StatefulWidget {
   DrinkDetailsPage({Key key, this.drink, this.index}) : super(key: key);
 
-  final Drink drink;
+  final DrinkData drink;
+//  final Drink drink;
   final int index;
 
   @override
@@ -17,6 +20,9 @@ class DrinkDetailsPage extends StatefulWidget {
 class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
   @override
   Widget build(BuildContext context) {
+    print('drink: ' + widget.drink.toString());
+    print('index: ' + widget.index.toString());
+
     SystemChrome.setEnabledSystemUIOverlays([]);
     return Scaffold(
       body: Container(
@@ -63,13 +69,15 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
       child: Container(
         alignment: Alignment.center,
         height: 350.0,
-        decoration: BoxDecoration(color: widget.drink.color, borderRadius: BorderRadius.only(bottomLeft: Radius.circular(50.0))),
+        decoration: BoxDecoration(color: Color(int.parse(widget.drink.color)), borderRadius: BorderRadius.only(bottomLeft: Radius.circular(50.0))),
         child: RotationTransition(
           turns: AlwaysStoppedAnimation(15 / 360),
           child: Container(
             width: 200.0,
             height: 200.0,
-            decoration: BoxDecoration(image: DecorationImage(image: AssetImage(widget.drink.imgPath))),
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: NetworkImage(widget.drink.imgPath))),
           ),
         ),
       ),
@@ -113,7 +121,7 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                   child: Center(
                     child: Text(
                       widget.drink.price,
-                      style: TextStyle(color: widget.drink.color, fontWeight: FontWeight.w500, fontSize: 20.0),
+                      style: TextStyle(color: Color(int.parse(widget.drink.color)), fontWeight: FontWeight.w500, fontSize: 20.0),
                     ),
                   ),
                 )
