@@ -363,6 +363,9 @@ class _HomePageState extends State<HomePage> {
         .then((DataSnapshot datasnapshot) {
       if (datasnapshot != null) {
         var data = datasnapshot.value as Map;
+
+        print('dataSnapShot:' + datasnapshot.value.toString());
+
         data.forEach((key, value) {
           print('Key is:' + key);
           print('value is:' + value.toString());

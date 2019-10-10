@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_drink_ui/screens/HomePage.dart';
+import 'package:flutter_app_drink_ui/screens/LoginPage.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(body: HomePage()),
+      home: Scaffold(body: LoginPage()),
     );
   }
 }
