@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_drink_ui/screens/HomePage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginPage extends StatefulWidget {
@@ -25,6 +27,20 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     phoneNumberNode = FocusNode();
+    getLoginStatus().then((status){
+      if(status){
+        Fluttertoast.showToast(msg: 'AlreadyLoggedIn');
+        setState(() {
+          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Material(child: HomePage())));
+        });
+//        Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+      }else{
+        Fluttertoast.showToast(msg: 'Not AlreadyLoggedIn');
+//        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Material(child: LoginPage())));
+      }
+    }).catchError((onError){
+      print('catchError: getLoginStatus: ' + onError.toString());
+    });
   }
 
   @override
@@ -36,6 +52,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
+
 
     return Container(
       width: double.infinity,
@@ -120,6 +137,7 @@ class _LoginPageState extends State<LoginPage> {
           firebaseUser = user.user;
           print('phoneVerification auto succeeded with user:' + user.user.toString());
         });
+        checkUserAlreadyExist('+91' + phoneNumber);
       }).catchError((onError) {
         setState(() {
           print('catchError phoneVerficationCompleted: ' + onError.toString());
@@ -140,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
         print('verificationId: ' + verificationId + ' forceResendingToken: ' + forceResendingToken.toString());
         verificationId = verificationId;
       });
-    };
+    };checkUserAlreadyExist('+91' + phoneNumber);
 
     final PhoneCodeAutoRetrievalTimeout phoneCodeAutoRetrievalTimeout = (String verificationId) {
       setState(() {
@@ -161,5 +179,32 @@ class _LoginPageState extends State<LoginPage> {
         .catchError((onError) {
       print('catchError verifyPhoneNumber: ' + onError.toString());
     });
+  }
+
+  Future<void> checkUserAlreadyExist(String phoneNumber) async{
+    print('checkUserAlreadyExist called');
+//    FirebaseDatabase firebaseDatabase = FirebaseDatabase(databaseURL: 'https://flutterdrinkui.firebaseio.com');
+    FirebaseDatabase.instance.reference().child('users').child(phoneNumber).child('authNumber').once().then((DataSnapshot snapShot){
+      if(snapShot.value != null){
+        print('snapShot exist');
+      }else{
+        print('snapShot not exist');
+        FirebaseDatabase.instance.reference().child('users').child(phoneNumber).set({'authNumber' : phoneNumber});
+      }
+    }).catchError((onError){
+      print('catchError checkUserAlreadyExisted: ' + onError.toString());
+    });
+  }
+
+  Future<bool> getLoginStatus() async{
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    firebaseUser = await firebaseAuth.currentUser();
+    print('getLoginStatus firebaseUser details: ' + firebaseUser.toString());
+    if(firebaseUser != null && firebaseUser.phoneNumber != null){
+      return true;
+    }else{
+      return false;
+    }
+
   }
 }

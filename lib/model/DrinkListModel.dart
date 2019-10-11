@@ -21,7 +21,7 @@ class DrinkListModel {
 
 @JsonSerializable()
 class DrinkData {
-  DrinkData(this.price, this.title, this.subTitle, this.imgPath, this.color, this.rating, this.drinkQuantity);
+  DrinkData(this.price, this.title, this.subTitle, this.imgPath, this.color, this.rating, this.drinkQuantity, this.description, this.drinkId);
 
   String price;
   String title;
@@ -30,6 +30,9 @@ class DrinkData {
   String color;
   int rating;
   String drinkQuantity;
+  String description;
+  String drinkId;
+
 
   factory DrinkData.fromJson(Map<dynamic, dynamic> json) => _$DrinkDataFromJson(json);
 

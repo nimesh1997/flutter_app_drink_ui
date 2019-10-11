@@ -24,7 +24,9 @@ DrinkData _$DrinkDataFromJson(Map<dynamic, dynamic> json) {
       json['imgPath'] as String,
       json['color'] as String,
       json['rating'] as int,
-      json['drinkQuantity'] as String);
+      json['drinkQuantity'] as String,
+      json['description'] as String,
+      json['drinkId'] as String);
 }
 
 Map<dynamic, dynamic> _$DrinkDataToJson(DrinkData instance) => <dynamic, dynamic>{
@@ -34,5 +36,7 @@ Map<dynamic, dynamic> _$DrinkDataToJson(DrinkData instance) => <dynamic, dynamic
       'imgPath': instance.imgPath,
       'color': instance.color,
       'rating': instance.rating,
-      'drinkQuantity': instance.drinkQuantity
+      'drinkQuantity': instance.drinkQuantity,
+      'description': instance.description,
+      'drinkId': instance.drinkId
     };

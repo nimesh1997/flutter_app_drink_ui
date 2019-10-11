@@ -10,6 +10,7 @@ class DrinkDetailsPage extends StatefulWidget {
   DrinkDetailsPage({Key key, this.drink, this.index}) : super(key: key);
 
   final DrinkData drink;
+
 //  final Drink drink;
   final int index;
 
@@ -18,6 +19,8 @@ class DrinkDetailsPage extends StatefulWidget {
 }
 
 class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
+  bool iconSelected = false;
+
   @override
   Widget build(BuildContext context) {
     print('drink: ' + widget.drink.toString());
@@ -29,11 +32,16 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
           width: double.infinity,
           height: double.infinity,
           color: Colors.white,
-          child: Stack(
+          child: Column(
             children: <Widget>[
-              buildCurveOne(),
-              buildCurveTwo(),
-              buildAppbar(),
+              Stack(
+                children: <Widget>[
+                  buildCurveOne(),
+                  buildCurveTwo(),
+                  buildAppbar(),
+                ],
+              ),
+              buildBottomContainer()
             ],
           )),
     );
@@ -75,9 +83,7 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
           child: Container(
             width: 200.0,
             height: 200.0,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: NetworkImage(widget.drink.imgPath))),
+            decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(widget.drink.imgPath))),
           ),
         ),
       ),
@@ -124,11 +130,59 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                       style: TextStyle(color: Color(int.parse(widget.drink.color)), fontWeight: FontWeight.w500, fontSize: 20.0),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  buildBottomContainer() {
+    return Container(
+      padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 40.0),
+      height: 100.0,
+      child: Column(
+        children: <Widget>[
+          Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  widget.drink.title,
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 20.0),
+                ),
+                Text(
+                  widget.drink.subTitle,
+                  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 14.0),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 2.0,
+            ),
+            Container(
+              child: Center(
+                child: iconSelected
+                    ? IconButton(
+                        icon: Icon(Icons.star),
+                        onPressed: () {
+                          /// todo dynamic store particular drink in likes node
+                          iconSelected = false;
+                          setState(() {});
+                        })
+                    : IconButton(
+                        icon: Icon(Icons.star_border),
+                        onPressed: () {
+                          /// todo dynamic store remove particular drink in likes node
+                          iconSelected = true;
+                          setState(() {});
+                        }),
+              ),
+            ),
+          ]),
+        ],
       ),
     );
   }

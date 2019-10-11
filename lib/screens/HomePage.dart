@@ -337,6 +337,7 @@ class _HomePageState extends State<HomePage> {
         .child('drinkList')
         .child('normalList')
         .orderByKey()
+        .limitToFirst(3)
         .once()
         .then((DataSnapshot datasnapshot) {
       if (datasnapshot != null) {
@@ -359,6 +360,7 @@ class _HomePageState extends State<HomePage> {
         .child('drinkList')
         .child('recommendList')
         .orderByKey()
+        .limitToFirst(3)
         .once()
         .then((DataSnapshot datasnapshot) {
       if (datasnapshot != null) {
