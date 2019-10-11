@@ -199,6 +199,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<bool> getLoginStatus() async{
     FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     firebaseUser = await firebaseAuth.currentUser();
+    setState(() {});
     print('getLoginStatus firebaseUser details: ' + firebaseUser.toString());
     if(firebaseUser != null && firebaseUser.phoneNumber != null){
       return true;

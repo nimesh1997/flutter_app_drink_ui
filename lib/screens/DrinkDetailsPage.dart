@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_drink_ui/model/Drink.dart';
 import 'package:flutter_app_drink_ui/model/DrinkListModel.dart';
+import 'package:flutter_app_drink_ui/screens/LoginPage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:math' as math;
 
@@ -170,6 +172,8 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                         onPressed: () {
                           /// todo dynamic store particular drink in likes node
                           iconSelected = false;
+                          addDrinkToLikesNode(iconSelected);
+//                          Fluttertoast.showToast(msg: 'Removed');
                           setState(() {});
                         })
                     : IconButton(
@@ -177,6 +181,8 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                         onPressed: () {
                           /// todo dynamic store remove particular drink in likes node
                           iconSelected = true;
+                          addDrinkToLikesNode(iconSelected);
+//                          Fluttertoast.showToast(msg: 'Added');
                           setState(() {});
                         }),
               ),
@@ -185,5 +191,9 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
         ],
       ),
     );
+  }
+
+  void addDrinkToLikesNode(bool selected) async {
+    await FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).update({widget.drink.drinkId: selected});
   }
 }
