@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_drink_ui/screens/CountDownWidget.dart';
 import 'package:flutter_app_drink_ui/screens/HomePage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -60,6 +61,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
 
+    if(enableResendButton){
+      print('enableResendButton: ' + enableResendButton.toString());
+      animationController.forward(from: 0.0);
+    }
 
     return Container(
       width: double.infinity,
@@ -126,13 +131,31 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   },
                 ),
               ),
-//              showResendButton ? InkWell(child: Text('Resend Otp'),
-//                onTap: (){
-//                print('Resend Otp...');
-//                /// again send the code to the particular phone number
-//                sendCodeToPhoneNumber();
-//                },) : SizedBox(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  showResendButton ? InkWell(child: Text('Resend Otp'),
+                    onTap: (){
+                      print('Resend Otp...');
+                      setState(() {
+                        showResendButton = false;
+                      });
+                      /// again send the code to the particular phone number
+                      sendCodeToPhoneNumber();
+                    },) : enableResendButton ? CountDownWidget(animation: StepTween(begin: startValue, end: 0,).animate(animationController)..
+                  addStatusListener((statusListener){
+                    if(statusListener == AnimationStatus.completed){
+                      setState(() {
+                        showResendButton = true;
+                        enableResendButton = false;
+                      });
+                    }
+                  })) : SizedBox(),
+                ],
+              ),
               !otpSend ? RaisedButton(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
                 color: Colors.white,
                 shape: StadiumBorder(),
                 onPressed: () {
@@ -145,7 +168,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     print('verify phone number called...');
                     setState(() {
                       otpSend = true;
-                      showResendButton = true;
+                      enableResendButton = true;
+//                      showResendButton = true;
                     });
                     /// calling firebase functions for authentication
                     /// sends the code to the specified phone number
