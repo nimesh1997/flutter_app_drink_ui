@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_drink_ui/model/Drink.dart';
 import 'package:flutter_app_drink_ui/model/DrinkListModel.dart';
+import 'package:flutter_app_drink_ui/screens/HomePage.dart';
 import 'package:flutter_app_drink_ui/screens/LoginPage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:math' as math;
@@ -13,7 +14,6 @@ class DrinkDetailsPage extends StatefulWidget {
 
   final DrinkData drink;
 
-//  final Drink drink;
   final int index;
 
   @override
@@ -22,11 +22,18 @@ class DrinkDetailsPage extends StatefulWidget {
 
 class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
   bool iconSelected = false;
+  int drinkId;
+
+  @override
+  void initState() {
+    super.initState();
+    getDrinkId();
+  }
 
   @override
   Widget build(BuildContext context) {
-    print('drink: ' + widget.drink.toString());
-    print('index: ' + widget.index.toString());
+    print('build Called...');
+//    print('iconSelected status: ' + iconSelected.toString());
 
     SystemChrome.setEnabledSystemUIOverlays([]);
     return Scaffold(
@@ -173,7 +180,6 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                           /// todo dynamic store particular drink in likes node
                           iconSelected = false;
                           addDrinkToLikesNode(iconSelected);
-//                          Fluttertoast.showToast(msg: 'Removed');
                           setState(() {});
                         })
                     : IconButton(
@@ -182,7 +188,6 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                           /// todo dynamic store remove particular drink in likes node
                           iconSelected = true;
                           addDrinkToLikesNode(iconSelected);
-//                          Fluttertoast.showToast(msg: 'Added');
                           setState(() {});
                         }),
               ),
@@ -195,5 +200,21 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
 
   void addDrinkToLikesNode(bool selected) async {
     await FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).update({widget.drink.drinkId: selected});
+  }
+
+  void getDrinkId() async {
+    print('getDrinkId Called');
+    print('likes data: ' + likes.toString());
+    likes.forEach((k, v) {
+      if (widget.drink.drinkId == k) {
+        print('key is: ' + k);
+        print('value is: ' + v.toString());
+        setState(() {
+          iconSelected = v;
+          print(iconSelected);
+        });
+      }
+    });
+    print('after setState: ' + iconSelected.toString());
   }
 }

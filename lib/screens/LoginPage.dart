@@ -15,28 +15,35 @@ String phoneNumber = '';
 FirebaseAuth firebaseAuth;
 FirebaseUser firebaseUser;
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin{
   TextEditingController phoneNumberController;
   TextEditingController smsOtpController;
 
   String verificationId = '';
   String smsOtp = '';
-  FocusNode phoneNumberNode;
+  bool otpSend = false;
+  bool showResendButton = false;
+  bool enableResendButton = false;
+
+  int startValue = 30;
+
+  AnimationController animationController;
 
   @override
   void initState() {
     super.initState();
-    phoneNumberNode = FocusNode();
+    print('initState Called');
+    animationController = AnimationController(vsync: this, duration: Duration(seconds: startValue));
+    phoneNumberController = TextEditingController();
+    smsOtpController = TextEditingController();
     getLoginStatus().then((status){
       if(status){
         Fluttertoast.showToast(msg: 'AlreadyLoggedIn');
         setState(() {
-          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Material(child: HomePage())));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Material(child: HomePage())));
         });
-//        Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
       }else{
         Fluttertoast.showToast(msg: 'Not AlreadyLoggedIn');
-//        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Material(child: LoginPage())));
       }
     }).catchError((onError){
       print('catchError: getLoginStatus: ' + onError.toString());
@@ -46,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     super.dispose();
-    phoneNumberNode.dispose();
+    animationController.dispose();
   }
 
   @override
@@ -59,7 +66,6 @@ class _LoginPageState extends State<LoginPage> {
       height: double.infinity,
       padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
       child: Stack(
-//        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Align(
             alignment: Alignment.topCenter,
@@ -82,8 +88,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
-                child: TextField(
-                  focusNode: phoneNumberNode,
+                child: !otpSend ? TextField(
                   autofocus: false,
                   decoration: InputDecoration(labelText: 'Enter your phone number', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
@@ -101,9 +106,33 @@ class _LoginPageState extends State<LoginPage> {
                       phoneNumber = value;
                     });
                   },
+                ) : TextField(
+                  autofocus: false,
+                  decoration: InputDecoration(labelText: 'Enter Otp sent to your phone number', border: OutlineInputBorder()),
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  controller: smsOtpController,
+                  onChanged: (value) {
+                    setState(() {
+                      print('onChanged sms: ' + value);
+                      smsOtp = value;
+                    });
+                  },
+                  onSubmitted: (value) {
+                    print('smsOtpController: ' + value);
+                    setState(() {
+                      smsOtp = value;
+                    });
+                  },
                 ),
               ),
-              RaisedButton(
+//              showResendButton ? InkWell(child: Text('Resend Otp'),
+//                onTap: (){
+//                print('Resend Otp...');
+//                /// again send the code to the particular phone number
+//                sendCodeToPhoneNumber();
+//                },) : SizedBox(),
+              !otpSend ? RaisedButton(
                 color: Colors.white,
                 shape: StadiumBorder(),
                 onPressed: () {
@@ -111,14 +140,26 @@ class _LoginPageState extends State<LoginPage> {
                     print('Please Enter 10 digit phone number');
                     Fluttertoast.showToast(msg: 'Please Enter 10 digit phone number');
                   } else {
-                    print('verify phone number called...');
 
+                    phoneNumberController.clear();
+                    print('verify phone number called...');
+                    setState(() {
+                      otpSend = true;
+                      showResendButton = true;
+                    });
                     /// calling firebase functions for authentication
                     /// sends the code to the specified phone number
                     sendCodeToPhoneNumber();
                   }
                 },
                 child: Text('Login'),
+              ) :  RaisedButton(
+                color: Colors.white,
+                shape: StadiumBorder(),
+                onPressed: () {
+                  verifyOtp();
+                },
+                child: Text('Next'),
               )
             ],
           ),
@@ -133,10 +174,10 @@ class _LoginPageState extends State<LoginPage> {
       print('authCredential: ' + authCredential.toString());
       print('phoneVerification auto succeeded:');
       await FirebaseAuth.instance.signInWithCredential(authCredential).then((AuthResult user) {
-        setState(() {
+
           firebaseUser = user.user;
           print('phoneVerification auto succeeded with user:' + user.user.toString());
-        });
+          setState(() {});
         checkUserAlreadyExist('+91' + phoneNumber);
       }).catchError((onError) {
         setState(() {
@@ -152,13 +193,14 @@ class _LoginPageState extends State<LoginPage> {
       });
     };
 
-    final PhoneCodeSent phoneCodeSent = (String verificationId, [int forceResendingToken]) async {
+    final PhoneCodeSent phoneCodeSent = (String verId, [int forceResendingToken]) async {
       setState(() {
         print('phoneCodeSent Called...');
         print('verificationId: ' + verificationId + ' forceResendingToken: ' + forceResendingToken.toString());
-        verificationId = verificationId;
+        verificationId = verId;
+
       });
-    };checkUserAlreadyExist('+91' + phoneNumber);
+    };
 
     final PhoneCodeAutoRetrievalTimeout phoneCodeAutoRetrievalTimeout = (String verificationId) {
       setState(() {
@@ -183,13 +225,15 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> checkUserAlreadyExist(String phoneNumber) async{
     print('checkUserAlreadyExist called');
-//    FirebaseDatabase firebaseDatabase = FirebaseDatabase(databaseURL: 'https://flutterdrinkui.firebaseio.com');
     FirebaseDatabase.instance.reference().child('users').child(phoneNumber).child('authNumber').once().then((DataSnapshot snapShot){
       if(snapShot.value != null){
         print('snapShot exist');
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Material(child: HomePage())));
       }else{
         print('snapShot not exist');
         FirebaseDatabase.instance.reference().child('users').child(phoneNumber).set({'authNumber' : phoneNumber});
+        checkUserAlreadyExist(phoneNumber);
+
       }
     }).catchError((onError){
       print('catchError checkUserAlreadyExisted: ' + onError.toString());
@@ -197,8 +241,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<bool> getLoginStatus() async{
-    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    print('getLoginStatus Called');
+    firebaseAuth = FirebaseAuth.instance;
     firebaseUser = await firebaseAuth.currentUser();
+    print('firebase details: ' + firebaseAuth.currentUser().toString());
     setState(() {});
     print('getLoginStatus firebaseUser details: ' + firebaseUser.toString());
     if(firebaseUser != null && firebaseUser.phoneNumber != null){
@@ -207,5 +253,34 @@ class _LoginPageState extends State<LoginPage> {
       return false;
     }
 
+  }
+
+  void verifyOtp() async{
+    if (smsOtp.trim().isEmpty || smsOtp.trim().length < 6) {
+      print('Please Enter 6 digit phone number');
+      Fluttertoast.showToast(msg: 'Please Enter 6 digit phone number');
+    } else {
+      print('verify otp...');
+      Fluttertoast.showToast(msg: 'Verifying Otp...');
+
+      try{
+        final AuthCredential credential = PhoneAuthProvider.getCredential(verificationId: verificationId, smsCode: smsOtp);
+        await firebaseAuth.signInWithCredential(credential).then((AuthResult user){
+          firebaseUser = user.user;
+          print('phoneVerification auto succeeded with user:' + user.user.toString());
+          checkUserAlreadyExist('+91' + phoneNumber);
+
+        }).catchError((PlatformException onError){
+          print('verify Otp catchError: ' + onError.toString());
+          print('verify Otp catchError Code: ' + onError.code.toString());
+          if(onError.code.toString() == 'ERROR_INVALID_VERIFICATION_CODE'){
+            Fluttertoast.showToast(msg: 'Please Enter Correct Otp');
+          }
+        });
+      }catch (e){
+        print('verifyOtp error: ' + e.toString());
+      }
+
+    }
   }
 }

@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_drink_ui/model/DrinkListModel.dart';
 import 'package:flutter_app_drink_ui/screens/DrinkDetailsPage.dart';
+import 'package:flutter_app_drink_ui/screens/LoginPage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -17,16 +20,33 @@ class HomePage extends StatefulWidget {
 
 List<DrinkData> drinkDataList = [];
 List<DrinkData> recommendDrinkDataList = [];
+Map<dynamic, dynamic> likes = Map();
 
 class _HomePageState extends State<HomePage> {
-  DatabaseReference databaseReference;
+  StreamSubscription<Event> _onTodoAddedSubscription;
+  StreamSubscription<Event> _onTodoChangedSubscription;
 
   bool isFetchDataAvailable = false;
 
   @override
   void initState() {
     print('initState Called');
+    _onTodoAddedSubscription = FirebaseDatabase.instance
+        .reference()
+        .child('likes')
+        .child(firebaseUser.phoneNumber).onChildAdded.listen(_onEntryAdded);
+    _onTodoChangedSubscription = FirebaseDatabase.instance
+        .reference()
+        .child('likes')
+        .child(firebaseUser.phoneNumber).onChildChanged.listen(_onEntryChanged);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _onTodoChangedSubscription.cancel();
+    _onTodoAddedSubscription.cancel();
   }
 
   @override
@@ -35,6 +55,7 @@ class _HomePageState extends State<HomePage> {
 
     if(!isFetchDataAvailable){
       getDataFromFirebase();
+
       return Center(
         child: Container(
           width: 20.0,
@@ -59,7 +80,6 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: <Widget>[
                         buildTile('List'),
-//                      buildList(drinkList),
                         buildList(drinkDataList),
                       ],
                     ),
@@ -73,7 +93,6 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: <Widget>[
                         buildTile('Recommend'),
-//                      buildList(recommendedDrinkList),
                         buildList(recommendDrinkDataList),
                       ],
                     ),
@@ -112,12 +131,7 @@ class _HomePageState extends State<HomePage> {
                     icon: Icon(Icons.notifications, color: Colors.grey),
                     padding: EdgeInsets.all(0),
                     onPressed: () {
-                      Fluttertoast.showToast(
-                          msg: "Coming Soon",
-                          toastLength: Toast.LENGTH_SHORT,
-                          backgroundColor: Colors.black,
-                          textColor: Colors.white,
-                          fontSize: 12.0);
+                      signOut();
                     }),
                 Align(
                   alignment: Alignment.topCenter,
@@ -336,12 +350,11 @@ class _HomePageState extends State<HomePage> {
         .child('drinks')
         .child('drinkList')
         .child('normalList')
-        .orderByKey()
-        .limitToFirst(3)
         .once()
         .then((DataSnapshot datasnapshot) {
       if (datasnapshot != null) {
         var data = datasnapshot.value as Map;
+        print('length: ' + data.length.toString());
         data.forEach((key, value) {
           print('Key is:' + key);
           print('value is:' + value.toString());
@@ -359,8 +372,6 @@ class _HomePageState extends State<HomePage> {
         .child('drinks')
         .child('drinkList')
         .child('recommendList')
-        .orderByKey()
-        .limitToFirst(3)
         .once()
         .then((DataSnapshot datasnapshot) {
       if (datasnapshot != null) {
@@ -379,8 +390,29 @@ class _HomePageState extends State<HomePage> {
     }).catchError((onError) {
       print('catchError: ' + onError.toString());
     });
+    
+    Future<void> future3 = FirebaseDatabase.instance
+        .reference()
+        .child('likes')
+        .child(firebaseUser.phoneNumber)
+        .once()
+        .then((snapShot){
+      if(snapShot.value != null){
+        print('future3 snapShot:' + snapShot.value.toString());
 
-    Future.wait([future1, future2]).then((onValue) {
+        var data = snapShot.value as Map<dynamic, dynamic>;
+        data.forEach((k,v){
+          print('key is: ' + k);
+          print('value is: ' + v.toString());
+        });
+        likes = snapShot.value as Map<dynamic, dynamic>;
+        print('likes: ' + likes.toString());
+      }
+    }).catchError((onError){
+      print('future3 catchError: ' + onError.toString());
+    });
+
+    Future.wait([future1, future2, future3]).then((onValue) {
       print('data fetch successfully');
       setState(() {
         isFetchDataAvailable = true;
@@ -388,5 +420,37 @@ class _HomePageState extends State<HomePage> {
     }).catchError((onError) {
       print('catchError Called...' + onError.toString());
     });
+  }
+
+  void _onEntryAdded(Event event) {
+    print('onEntryAdded Called');
+    setState(() {
+      print(event.snapshot.key);
+      print(event.snapshot.value);
+      likes[event.snapshot.key] = event.snapshot.value;
+
+    });
+  }
+
+  void _onEntryChanged(Event event) {
+    print('onEntryChanged Called');
+    var value = event.snapshot.key;
+    setState(() {
+      likes[value] = event.snapshot.value;
+    });
+  }
+
+  void signOut() async{
+    print('signOut Called');
+    await firebaseAuth.signOut();
+    setState(() {
+      phoneNumber = '';
+      firebaseAuth = null;
+      firebaseUser = null;
+      drinkDataList = [];
+      recommendDrinkDataList = [];
+      likes = Map();
+    });
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (BuildContext context) => Material(child: LoginPage())));
   }
 }
