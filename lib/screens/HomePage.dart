@@ -1,16 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_drink_ui/model/DrinkListModel.dart';
+import 'package:flutter_app_drink_ui/model/User.dart';
 import 'package:flutter_app_drink_ui/screens/DrinkDetailsPage.dart';
 import 'package:flutter_app_drink_ui/screens/LoginPage.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class HomePage extends StatefulWidget {
@@ -31,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     print('initState Called');
+    /// listener attached for handling the child added or changed
     _onTodoAddedSubscription = FirebaseDatabase.instance
         .reference()
         .child('likes')
@@ -345,6 +342,26 @@ class _HomePageState extends State<HomePage> {
   /// this method fetch data from Firebase
   void getDataFromFirebase() async {
     print('getDataFromFirebase Called');
+
+    /// Testing for something
+//    FirebaseDatabase.instance.reference().child('users').child(firebaseUser.phoneNumber).once().then((DataSnapshot snapShot){
+//      print('initial Value: ' +snapShot.value.toString());
+//      var data = snapShot.value as Map;
+//      User userData;
+//      userData = User.fromJson(data);
+//      print(userData.toString());
+//      data.forEach((k,v){
+//        print('k is: ' + k);
+//        print('v is: ' + v.toString());
+//        User.fromJson(v);
+//      });
+
+    }).catchError((onError){
+      print('initial onError: ' + onError.toString());
+    });
+
+
+
     Future<void> future1 = FirebaseDatabase.instance
         .reference()
         .child('drinks')
