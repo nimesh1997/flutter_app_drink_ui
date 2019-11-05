@@ -1,8 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app_drink_ui/model/Drink.dart';
 import 'package:flutter_app_drink_ui/model/DrinkListModel.dart';
 import 'package:flutter_app_drink_ui/screens/HomePage.dart';
 import 'package:flutter_app_drink_ui/screens/LoginPage.dart';
@@ -38,19 +36,23 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
     SystemChrome.setEnabledSystemUIOverlays([]);
     return Scaffold(
       body: Container(
-          width: double.infinity,
+        width: double.infinity,
           height: double.infinity,
           color: Colors.white,
-          child: Column(
+          child: ListView(
             children: <Widget>[
-              Stack(
+              Column(
                 children: <Widget>[
-                  buildCurveOne(),
-                  buildCurveTwo(),
-                  buildAppbar(),
+                  Stack(
+                    children: <Widget>[
+                      buildCurveOne(),
+                      buildCurveTwo(),
+                      buildAppbar(),
+                    ],
+                  ),
+                  buildBottomContainer()
                 ],
               ),
-              buildBottomContainer()
             ],
           )),
     );
@@ -111,23 +113,28 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
       child: Container(
         height: 100.0,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      widget.drink.title,
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 20.0),
-                    ),
-                    Text(
-                      widget.drink.subTitle,
-                      style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 14.0),
-                    )
-                  ],
+                Container(
+                  width: MediaQuery.of(context).size.width / 1.35,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        widget.drink.titleTop,
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 16.0),
+                      ),
+                      Text(
+                        widget.drink.subTitleTop,
+                        style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 14.0),
+                      )
+                    ],
+                  ),
                 ),
                 SizedBox(
                   height: 2.0,
@@ -136,11 +143,25 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                   child: Center(
                     child: Text(
                       widget.drink.price,
-                      style: TextStyle(color: Color(int.parse(widget.drink.color)), fontWeight: FontWeight.w500, fontSize: 20.0),
+                      style: TextStyle(color: Color(int.parse(widget.drink.color)),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 26.0),
                     ),
                   ),
                 ),
               ],
+            ),
+            SizedBox(
+              height: 12.0,
+            ),
+            Text(
+              widget.drink.drinkQuantity,
+              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 14.0),
+            ),
+            Text(
+              widget.drink.descriptionTop,
+                textScaleFactor: 1,
+              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 14.0),
             ),
           ],
         ),
@@ -150,23 +171,32 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
 
   buildBottomContainer() {
     return Container(
-      padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 40.0),
-      height: 100.0,
+      padding: EdgeInsets.only(left: 10.0, right: 10.0, top: 20.0),
+//      height: 100.0,
+      width: double.maxFinite,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Row(crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
-                  widget.drink.title,
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 20.0),
-                ),
-                Text(
-                  widget.drink.subTitle,
-                  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 14.0),
-                )
-              ],
+            Container(
+              width: MediaQuery.of(context).size.width / 1.25,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    widget.drink.titleBottom,
+                    textScaleFactor: 1,
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 16.0),
+                  ),
+                  Text(
+                    widget.drink.subTitleBottom,
+                    textScaleFactor: 1,
+                    style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 14.0),
+                  )
+                ],
+              ),
             ),
             SizedBox(
               height: 2.0,
@@ -175,6 +205,8 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
               child: Center(
                 child: iconSelected
                     ? IconButton(
+                        alignment: Alignment.topCenter,
+                        padding: const EdgeInsets.all(0.0),
                         icon: Icon(Icons.star),
                         onPressed: () {
                           /// todo dynamic store particular drink in likes node
@@ -183,6 +215,8 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                           setState(() {});
                         })
                     : IconButton(
+                        alignment: Alignment.topCenter,
+                        padding: const EdgeInsets.all(0.0),
                         icon: Icon(Icons.star_border),
                         onPressed: () {
                           /// todo dynamic store remove particular drink in likes node
@@ -193,13 +227,22 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
               ),
             ),
           ]),
+          SizedBox(height: 12,),
+          Text(
+            widget.drink.descriptionBottom,
+            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 14.0),
+          ),
+          SizedBox(height: 12,),
         ],
       ),
     );
   }
 
   void addDrinkToLikesNode(bool selected) async {
-    await FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).update({widget.drink.drinkId: selected});
+    await FirebaseDatabase.instance.reference()
+        .child('likes')
+        .child(firebaseUser.phoneNumber)
+        .update({widget.drink.drinkId: selected});
   }
 
   void getDrinkId() async {

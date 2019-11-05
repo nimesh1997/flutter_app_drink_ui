@@ -19,6 +19,7 @@ List<DrinkData> recommendDrinkDataList = [];
 Map<dynamic, dynamic> likes = Map();
 
 class _HomePageState extends State<HomePage> {
+  ///listener attached for listening new value is added or old value is changed/deleted
   StreamSubscription<Event> _onTodoAddedSubscription;
   StreamSubscription<Event> _onTodoChangedSubscription;
 
@@ -27,15 +28,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     print('initState Called');
+
     /// listener attached for handling the child added or changed
-    _onTodoAddedSubscription = FirebaseDatabase.instance
-        .reference()
-        .child('likes')
-        .child(firebaseUser.phoneNumber).onChildAdded.listen(_onEntryAdded);
-    _onTodoChangedSubscription = FirebaseDatabase.instance
-        .reference()
-        .child('likes')
-        .child(firebaseUser.phoneNumber).onChildChanged.listen(_onEntryChanged);
+    _onTodoAddedSubscription =
+        FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildAdded.listen(_onEntryAdded);
+    _onTodoChangedSubscription =
+        FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildChanged.listen(_onEntryChanged);
     super.initState();
   }
 
@@ -50,7 +48,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
 
-    if(!isFetchDataAvailable){
+    if (!isFetchDataAvailable) {
       getDataFromFirebase();
 
       return Center(
@@ -60,8 +58,7 @@ class _HomePageState extends State<HomePage> {
           child: CircularProgressIndicator(),
         ),
       );
-    }else{
-
+    } else {
       return Container(
         height: double.infinity,
         width: double.infinity,
@@ -77,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: <Widget>[
                         buildTile('List'),
-                        buildList(drinkDataList),
+//                        buildList(drinkDataList),
                       ],
                     ),
                   )
@@ -189,7 +186,7 @@ class _HomePageState extends State<HomePage> {
   buildList(List<dynamic> items) {
     return Container(
       margin: EdgeInsets.only(right: 10.0),
-      height: 280.0,
+      height: 325.0,
       width: MediaQuery.of(context).size.width,
 //      alignment: Alignment.bottomCenter,
       child: ListView.builder(
@@ -211,7 +208,7 @@ class _HomePageState extends State<HomePage> {
           ///Todo new detail screen open on tap of particular list item
           ///for hero transition using material page route
 
-          print('HomePage: ' + items[index].title);
+          print('HomePage: ' + items[index].titleTop);
           print('HomePage index: ' + index.toString());
           print('tag:' + items[index].imgPath + index.toString());
 
@@ -238,7 +235,7 @@ class _HomePageState extends State<HomePage> {
               Stack(
                 children: <Widget>[
                   Container(
-                    height: 160.0,
+                    height: 180.0,
                     width: 200.0,
                     decoration: BoxDecoration(
                         color: Color(int.parse(items[index].color)),
@@ -249,7 +246,7 @@ class _HomePageState extends State<HomePage> {
                     child: Hero(
                       tag: items[index].imgPath + index.toString(),
                       child: Container(
-                        height: 120.0,
+                        height: 140.0,
                         width: 200.0,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
@@ -281,7 +278,7 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: EdgeInsets.only(left: 10.0, top: 10.0),
                 child: Text(
-                  items[index].title,
+                  items[index].titleTop,
                   style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300, color: Colors.black),
                 ),
               ),
@@ -289,9 +286,9 @@ class _HomePageState extends State<HomePage> {
                 height: 5.0,
               ),
               Padding(
-                padding: EdgeInsets.only(left: 10.0),
+                padding: EdgeInsets.only(left: 10.0, right: 10.0),
                 child: Text(
-                  items[index].subTitle,
+                  items[index].subTitleTop,
                   style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w300, color: Colors.grey),
                 ),
               ),
@@ -355,42 +352,35 @@ class _HomePageState extends State<HomePage> {
 //        print('v is: ' + v.toString());
 //        User.fromJson(v);
 //      });
+//
+//    }).catchError((onError){
+//      print('initial onError: ' + onError.toString());
+//    });
 
-    }).catchError((onError){
-      print('initial onError: ' + onError.toString());
-    });
+//    Future<void> future1 = FirebaseDatabase.instance
+//        .reference()
+//        .child('drinks')
+//        .child('drinkList')
+//        .child('normalList')
+//        .once()
+//        .then((DataSnapshot datasnapshot) {
+//      if (datasnapshot != null) {
+//        var data = datasnapshot.value as Map;
+//        print('length: ' + data.length.toString());
+//        data.forEach((key, value) {
+//          print('Key is:' + key);
+//          print('value is:' + value.toString());
+//          drinkDataList.add(DrinkData.fromJson(value as Map));
+//        });
+//      } else {
+//        print('dataSnapShot is null');
+//      }
+//    }).catchError((onError) {
+//      print('catchError: ' + onError.toString());
+//    });
 
-
-
-    Future<void> future1 = FirebaseDatabase.instance
-        .reference()
-        .child('drinks')
-        .child('drinkList')
-        .child('normalList')
-        .once()
-        .then((DataSnapshot datasnapshot) {
-      if (datasnapshot != null) {
-        var data = datasnapshot.value as Map;
-        print('length: ' + data.length.toString());
-        data.forEach((key, value) {
-          print('Key is:' + key);
-          print('value is:' + value.toString());
-          drinkDataList.add(DrinkData.fromJson(value as Map));
-        });
-      } else {
-        print('dataSnapShot is null');
-      }
-    }).catchError((onError) {
-      print('catchError: ' + onError.toString());
-    });
-
-    Future<void> future2 = FirebaseDatabase.instance
-        .reference()
-        .child('drinks')
-        .child('drinkList')
-        .child('recommendList')
-        .once()
-        .then((DataSnapshot datasnapshot) {
+    Future<void> future2 =
+        FirebaseDatabase.instance.reference().child('drinks').child('drinkList').child('recommendList').once().then((DataSnapshot datasnapshot) {
       if (datasnapshot != null) {
         var data = datasnapshot.value as Map;
 
@@ -407,29 +397,24 @@ class _HomePageState extends State<HomePage> {
     }).catchError((onError) {
       print('catchError: ' + onError.toString());
     });
-    
-    Future<void> future3 = FirebaseDatabase.instance
-        .reference()
-        .child('likes')
-        .child(firebaseUser.phoneNumber)
-        .once()
-        .then((snapShot){
-      if(snapShot.value != null){
+
+    Future<void> future3 = FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).once().then((snapShot) {
+      if (snapShot.value != null) {
         print('future3 snapShot:' + snapShot.value.toString());
 
         var data = snapShot.value as Map<dynamic, dynamic>;
-        data.forEach((k,v){
+        data.forEach((k, v) {
           print('key is: ' + k);
           print('value is: ' + v.toString());
         });
         likes = snapShot.value as Map<dynamic, dynamic>;
         print('likes: ' + likes.toString());
       }
-    }).catchError((onError){
+    }).catchError((onError) {
       print('future3 catchError: ' + onError.toString());
     });
 
-    Future.wait([future1, future2, future3]).then((onValue) {
+    Future.wait([future2, future3]).then((onValue) {
       print('data fetch successfully');
       setState(() {
         isFetchDataAvailable = true;
@@ -445,7 +430,6 @@ class _HomePageState extends State<HomePage> {
       print(event.snapshot.key);
       print(event.snapshot.value);
       likes[event.snapshot.key] = event.snapshot.value;
-
     });
   }
 
@@ -457,7 +441,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void signOut() async{
+  void signOut() async {
     print('signOut Called');
     await firebaseAuth.signOut();
     setState(() {
