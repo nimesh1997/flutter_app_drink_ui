@@ -34,14 +34,15 @@ class _HomePageState extends State<HomePage> {
         FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildAdded.listen(_onEntryAdded);
     _onTodoChangedSubscription =
         FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildChanged.listen(_onEntryChanged);
+    getDataFromFirebase();
     super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
     _onTodoChangedSubscription.cancel();
     _onTodoAddedSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -49,7 +50,7 @@ class _HomePageState extends State<HomePage> {
     SystemChrome.setEnabledSystemUIOverlays([]);
 
     if (!isFetchDataAvailable) {
-      getDataFromFirebase();
+//      getDataFromFirebase();
 
       return Center(
         child: Container(
