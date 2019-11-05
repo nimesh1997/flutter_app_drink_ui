@@ -8,6 +8,7 @@ import 'package:flutter_app_drink_ui/model/User.dart';
 import 'package:flutter_app_drink_ui/screens/DrinkDetailsPage.dart';
 import 'package:flutter_app_drink_ui/screens/LoginPage.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -30,18 +31,18 @@ class _HomePageState extends State<HomePage> {
     print('initState Called');
 
     /// listener attached for handling the child added or changed
-    _onTodoAddedSubscription =
-        FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildAdded.listen(_onEntryAdded);
-    _onTodoChangedSubscription =
-        FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildChanged.listen(_onEntryChanged);
+//    _onTodoAddedSubscription =
+//        FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildAdded.listen(_onEntryAdded);
+//    _onTodoChangedSubscription =
+//        FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildChanged.listen(_onEntryChanged);
     getDataFromFirebase();
     super.initState();
   }
 
   @override
   void dispose() {
-    _onTodoChangedSubscription.cancel();
-    _onTodoAddedSubscription.cancel();
+//    _onTodoChangedSubscription.cancel();
+//    _onTodoAddedSubscription.cancel();
     super.dispose();
   }
 
@@ -117,33 +118,48 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 exit(0);
               }),
-          Container(
-            width: 50.0,
-            height: 50.0,
-            child: Stack(
-              children: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.notifications, color: Colors.grey),
-                    padding: EdgeInsets.all(0),
-                    onPressed: () {
-                      signOut();
-                    }),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                      margin: EdgeInsets.only(left: 14.0, top: 10.0),
-                      width: 12.0,
-                      height: 12.0,
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
-                      child: Center(
-                          child: Text(
-                        '1',
-                        style: TextStyle(fontSize: 8.0, color: Colors.white, fontWeight: FontWeight.bold),
-                        textScaleFactor: 1.0,
-                      ))),
-                )
-              ],
-            ),
+          Row(
+            children: <Widget>[
+              Container(
+                width: 50.0,
+                height: 50.0,
+                child: Stack(
+                  children: <Widget>[
+                    IconButton(
+                        icon: Icon(Icons.notifications, color: Colors.grey),
+                        padding: EdgeInsets.all(0),
+                        onPressed: () {
+                          Fluttertoast.showToast(
+                              msg: 'Coming Soon',
+                              toastLength: Toast.LENGTH_SHORT,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white,
+                              fontSize: 12.0);
+                        }),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                          margin: EdgeInsets.only(left: 14.0, top: 10.0),
+                          width: 12.0,
+                          height: 12.0,
+                          decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                          child: Center(
+                              child: Text(
+                            '1',
+                            style: TextStyle(fontSize: 8.0, color: Colors.white, fontWeight: FontWeight.bold),
+                            textScaleFactor: 1.0,
+                          ))),
+                    )
+                  ],
+                ),
+              ),
+              IconButton(
+                  padding: EdgeInsets.all(0),
+                  icon: Icon(Icons.exit_to_app),
+                  onPressed: () {
+                    signOut();
+                  })
+            ],
           )
         ],
       ),

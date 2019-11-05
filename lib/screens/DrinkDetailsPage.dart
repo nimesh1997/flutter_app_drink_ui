@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,21 +24,41 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
   bool iconSelected = false;
   int drinkId;
 
+
+  GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  ///listener attached for listening new value is added or old value is changed/deleted
+  StreamSubscription<Event> _onTodoAddedSubscription;
+  StreamSubscription<Event> _onTodoChangedSubscription;
+
   @override
   void initState() {
-    super.initState();
+    /// listener attached for handling the child added or changed
+    _onTodoAddedSubscription =
+        FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildAdded.listen(_onEntryAdded);
+    _onTodoChangedSubscription =
+        FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).onChildChanged.listen(_onEntryChanged);
     getDrinkId();
+    super.initState();
+  }
+
+
+  @override
+  void dispose() {
+    _onTodoChangedSubscription.cancel();
+    _onTodoAddedSubscription.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     print('build Called...');
-//    print('iconSelected status: ' + iconSelected.toString());
 
     SystemChrome.setEnabledSystemUIOverlays([]);
     return Scaffold(
+      key: scaffoldKey,
       body: Container(
-        width: double.infinity,
+          width: double.infinity,
           height: double.infinity,
           color: Colors.white,
           child: ListView(
@@ -143,9 +165,7 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                   child: Center(
                     child: Text(
                       widget.drink.price,
-                      style: TextStyle(color: Color(int.parse(widget.drink.color)),
-                          fontWeight: FontWeight.w500,
-                          fontSize: 26.0),
+                      style: TextStyle(color: Color(int.parse(widget.drink.color)), fontWeight: FontWeight.w500, fontSize: 26.0),
                     ),
                   ),
                 ),
@@ -160,7 +180,7 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
             ),
             Text(
               widget.drink.descriptionTop,
-                textScaleFactor: 1,
+              textScaleFactor: 1,
               style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 14.0),
             ),
           ],
@@ -177,9 +197,7 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Row(crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
+          Row(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
             Container(
               width: MediaQuery.of(context).size.width / 1.25,
               child: Column(
@@ -208,41 +226,66 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
                         alignment: Alignment.topCenter,
                         padding: const EdgeInsets.all(0.0),
                         icon: Icon(Icons.star),
-                        onPressed: () {
+                        onPressed: () async{
                           /// todo dynamic store particular drink in likes node
-                          iconSelected = false;
-                          addDrinkToLikesNode(iconSelected);
-                          setState(() {});
+                          await addDrinkToLikesNode(iconSelected);
+                          setState(() {
+                            iconSelected = false;
+                            scaffoldKey.currentState.showSnackBar(
+                                SnackBar(content: Text('Remvoed as favourite'),),);
+                          });
                         })
                     : IconButton(
                         alignment: Alignment.topCenter,
                         padding: const EdgeInsets.all(0.0),
                         icon: Icon(Icons.star_border),
-                        onPressed: () {
-                          /// todo dynamic store remove particular drink in likes node
-                          iconSelected = true;
-                          addDrinkToLikesNode(iconSelected);
-                          setState(() {});
+                        onPressed: () async{
+                          await addDrinkToLikesNode(iconSelected);
+                          setState(() {
+                            iconSelected = true;
+                            scaffoldKey.currentState.showSnackBar(
+                                SnackBar(content: Text('Marked as favourite'),),
+                            );
+                          });
                         }),
               ),
             ),
           ]),
-          SizedBox(height: 12,),
+          SizedBox(
+            height: 12,
+          ),
           Text(
             widget.drink.descriptionBottom,
             style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 14.0),
           ),
-          SizedBox(height: 12,),
+          SizedBox(
+            height: 12,
+          ),
         ],
       ),
     );
   }
 
   void addDrinkToLikesNode(bool selected) async {
-    await FirebaseDatabase.instance.reference()
-        .child('likes')
-        .child(firebaseUser.phoneNumber)
-        .update({widget.drink.drinkId: selected});
+    await FirebaseDatabase.instance.reference().child('likes').child(firebaseUser.phoneNumber).update({widget.drink.drinkId: selected});
+  }
+
+  void _onEntryAdded(Event event) {
+    print('onEntryAdded Called');
+    setState(() {
+      print(event.snapshot.key);
+      print(event.snapshot.value);
+      likes[event.snapshot.key] = event.snapshot.value;
+    });
+  }
+
+  void _onEntryChanged(Event event) {
+    print('onEntryChanged Called');
+    var value = event.snapshot.key;
+    setState(() {
+      likes[value] = event.snapshot.value;
+
+    });
   }
 
   void getDrinkId() async {
