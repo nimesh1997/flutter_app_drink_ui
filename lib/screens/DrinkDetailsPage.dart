@@ -92,8 +92,8 @@ class _DrinkDetailsPageState extends State<DrinkDetailsPage> {
         child: RotationTransition(
           turns: AlwaysStoppedAnimation(15 / 360),
           child: Container(
-            width: 200.0,
-            height: 200.0,
+            width: 220.0,
+            height: 220.0,
             decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(widget.drink.imgPath))),
           ),
         ),
